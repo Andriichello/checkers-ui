@@ -1,81 +1,43 @@
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div class="content">
+    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="128" height="128" />
 
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-      </nav>
-    </div>
-  </header>
+    <nav>
+      <RouterLink to="/" class="link">Home</RouterLink>
+      <RouterLink to="/about" class="link">About</RouterLink>
+    </nav>
 
-  <RouterView />
+    <RouterView />
+  </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import { defineComponent } from 'vue';
-import { useThemeStore } from '@/stores/theme';
 import { RouterLink, RouterView } from 'vue-router'
+
+export default defineComponent({
+  name: 'App',
+  components: {
+    RouterLink, 
+    RouterView,
+  }
+})
 </script>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.logo {
+  @apply mt-4 mb-2 ml-2 mr-2
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  flex-basis: 100%;
 }
 
 nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 2rem;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-  }
+  @apply flex mt-2 mb-2 ml-2 mr-2 gap-4;
 }
 </style>

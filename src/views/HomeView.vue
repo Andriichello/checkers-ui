@@ -34,4 +34,8 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
 }
+
+button {
+  @apply btn btn-ghost;
+}
 </style>

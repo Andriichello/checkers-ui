@@ -9,6 +9,11 @@ export class ThemeConfig {
         return ['dark', 'light'];
     }
 
+     /** Dark theme name */
+     public static dark(): string {
+        return 'dark';
+    }
+
     /** Default theme */
     public static default(): string {
         return this.list()[0];

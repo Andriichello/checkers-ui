@@ -10,16 +10,18 @@ export const useThemeStore = defineStore('theme', {
   },
   actions: {
     apply(theme: string | null) {
+      document.body.setAttribute(ThemeConfig.attribute, theme);
+      
       if (theme === null) {
-        localStorage.removeItem('data-theme');
+        localStorage.removeItem(ThemeConfig.storage);
       } else {
-        localStorage.setItem('data-theme', theme);
+        localStorage.setItem(ThemeConfig.storage, theme);
       }
 
       this.theme = theme;
     },
     resolve() {
-      const theme = localStorage.getItem('data-theme');
+      const theme = localStorage.getItem(ThemeConfig.storage);
       
       this.apply(theme ?? ThemeConfig.default());
     }

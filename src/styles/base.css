@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+#app {
+  overflow: hidden;
+
+  min-width: 100vw;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+
+:root {
+  /* Basic colors */
+  --white: #ffffff;
+  --red: #ff5454;
+  --green: #9ad150;
+  --orange: #ffa770;
+  --yellow: #f3da8d;
+
+  --blue: #b6cde2;
+  --l-blue: #80a4ed;
+
+  --d-gray: #a0a0a0;
+  --l-gray: #d3d3d3;
+
+  --d-black: #1d1d1b;
+  --m-black: #2e3336;
+  --l-black: #3e4851;
+}
