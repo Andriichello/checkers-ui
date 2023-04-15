@@ -2,15 +2,22 @@
   <div class="home">
     <h1>This is Home view</h1>
     <button @click="onChangeTheme">Change theme</button>
+  
+    <Board />
   </div>
 </template>
 
 <script lang="ts">
+import { Calculator, Game } from '@/core/board/Checkers';
 import { useThemeStore } from '@/stores/theme';
+import Board from '@/components/board/Board.vue';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'HomeView',
+  components: {
+    Board,
+  },
   methods: {
     onChangeTheme() {
       const store = useThemeStore();
