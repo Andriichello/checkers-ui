@@ -1,7 +1,5 @@
 <template>
   <div class="content">
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="128" height="128" />
-
     <nav>
       <RouterLink to="/" class="link">Home</RouterLink>
       <RouterLink to="/about" class="link">About</RouterLink>

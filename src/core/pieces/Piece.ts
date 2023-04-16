@@ -1,5 +1,5 @@
-import Cell from "../Cell";
-import Move from "../Move";
+import Cell from "@/core/board/Cell";
+import Move from "@/core/board/Move";
 
 export enum PieceType {
     Checker = 'C', 
@@ -8,14 +8,14 @@ export enum PieceType {
 
 export class Piece {
     protected type: PieceType;
-    protected previousType: PieceType | null;
+    protected previousTypes: PieceType[];
     readonly color: string;
     protected moves: Move[];
     readonly starting: Cell;
 
     constructor(type: PieceType, color: string, starting: Cell, moves: Move[] = []) {
         this.type = type;
-        this.previousType = null;
+        this.previousTypes = [];
         this.color = color;
         this.starting = starting;
         this.setMoves(moves);
@@ -38,7 +38,7 @@ export class Piece {
         const move = this.moves.pop()
 
         if (move.promotion) {
-            this.type = this.previousType;
+            this.type = this.previousTypes.pop();
         }
 
         return move;
@@ -48,7 +48,7 @@ export class Piece {
         this.moves.push(move);
 
         if (move.promotion) {
-            this.previousType = this.type;
+            this.previousTypes.push(this.type);
             this.type = move.promotion;
         }
 

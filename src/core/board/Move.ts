@@ -1,5 +1,5 @@
 import Cell from "./Cell";
-import { Piece, PieceType } from "./pieces/Piece";
+import { Piece, PieceType } from "@/core/pieces/Piece";
 
 export default class Move {
     readonly from: Cell;

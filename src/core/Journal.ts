@@ -1,4 +1,4 @@
-import Move from "./Move";
+import Move from "./board/Move";
 
 export default class Journal {
     protected moves: Move[];
@@ -23,5 +23,11 @@ export default class Journal {
     public pushMove(move: Move): Journal {
         this.moves.push(move);
         return this;
+    }
+
+    public lastMove(): Move | null {
+        const len = this.moves.length;
+
+        return len ? this.moves[len - 1] : null
     }
 }

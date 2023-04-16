@@ -4,14 +4,16 @@
     <button @click="onChangeTheme">Change theme</button>
   
     <Board />
+
+    <button @click="onUndo">Undo</button>
   </div>
 </template>
 
 <script lang="ts">
-import { Calculator, Game } from '@/core/board/Checkers';
 import { useThemeStore } from '@/stores/theme';
 import Board from '@/components/board/Board.vue';
 import { defineComponent } from 'vue';
+import { useCheckersStore } from '@/stores/checkers';
 
 export default defineComponent({
   name: 'HomeView',
@@ -19,10 +21,13 @@ export default defineComponent({
     Board,
   },
   methods: {
+    onUndo() {
+      const store = useCheckersStore();
+
+      store.undo();
+    },
     onChangeTheme() {
       const store = useThemeStore();
-
-      console.log('onChangeTheme', store.theme);
 
       if (store.list[0] === store.theme) {
         store.apply(store.list[1]);

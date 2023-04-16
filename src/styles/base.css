@@ -46,3 +46,28 @@ html, body {
   --m-black: #2e3336;
   --l-black: #3e4851;
 }
+
+@layer base {
+  * {
+    --icon-color: hsla(var(--bc) / var(--tw-text-opacity, 1));
+    --error-btn-text: hsl(var(--erc, var(--nc)) / var(--tw-text-opacity));
+  
+    --rounded-box: 0.25rem;
+    --padding-card: 1rem;
+
+    --white-cell: #FFFFDD; 
+    --black-cell: #86A666; 
+    --highlight-cell: #4D7E42; 
+
+    --white-piece: #FFFFFF;
+    --black-piece: #1a1a1a;
+  }
+
+  [data-theme="light"] {
+    
+  }
+
+  [data-theme="dark"] {
+   
+  }
+}
