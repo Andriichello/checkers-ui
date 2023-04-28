@@ -12,6 +12,7 @@ export class Game {
     protected color: string;
     readonly players: Player[];
     readonly journal: Journal;
+    readonly undos: Journal;
 
     constructor() {
         this.board = new Board();
@@ -20,6 +21,7 @@ export class Game {
         this.pieces = Factory.pieces(this.board, this.players[0], this.players[1]);
         this.captures = [];
         this.journal = new Journal();
+        this.undos = new Journal();
     }
 
     public playerOf(color: string): Player {
@@ -88,6 +90,13 @@ export class Game {
         piece.pushMove(move);
         this.journal.pushMove(move);
 
+        const undo = this.undos.lastMove();
+        if (undo === move) {
+            this.undos.popMove();
+        } else {
+            this.undos.clear();
+        }
+
         if (move.capture) {
             this.captures.push(move.capture);
 
@@ -108,28 +117,75 @@ export class Game {
     }
 
     public undo() {
-        if (!this.journal.lastMove()) {
+        let move = this.journal.popMove()
+        // there are no moves in the journal
+        if (!move) {
             return;
         }
 
-        const move = this.journal.popMove();
+        this.undos.pushMove(move);
+
         const piece = this.pieceAt(move.to);
         piece.popMove();
 
         if (move.capture) {
             this.captures.pop();
 
-            const last = this.journal.lastMove();
+            const lastMove = this.journal.lastMove();
             // if move before was a capture then do not switch to previous player
             // to make it possible to undo multiple captures in a row
-            if (last && last.capture && last.capture.color == move.capture.color) {
-                this.undo();
+            if (lastMove && lastMove.capture && lastMove.capture.color == move.capture.color) {
+                if (lastMove === piece.getMoves()[piece.getMoves().length - 1]) {
+                    this.color = piece.color;
+                }
+
+                return;
+            }
+
+            const lastUndo = this.undos.lastMove();
+            // if move before was a capture then do not switch to previous player
+            // to make it possible to undo multiple captures in a row
+            if (lastUndo && lastUndo.capture && lastUndo.capture.color == move.capture.color) {
+                if (lastUndo.from === piece.current) {
+                    this.color = piece.color;
+                }
+
                 return;
             }
         }
 
         // switch to previous player 
         this.color = this.prevPlayer().color; 
+    }
+
+    public forward() {
+        let move = this.undos.popMove()
+        // there are no moves in the undos journal
+        if (!move) {
+            return;
+        }
+
+        this.journal.pushMove(move);
+
+        const piece = this.pieceAt(move.from);
+        piece.pushMove(move);
+
+        if (move.capture) {
+            this.captures.push(move.capture);
+
+            const nextMove = this.undos.lastMove();
+            // if next move is a capture then do not switch to previous player
+            // to make it possible to undo multiple captures in a row
+            if (nextMove && nextMove.capture && nextMove.capture.color == move.capture.color) {
+                if (nextMove.from === piece.current) {
+                    this.color = piece.color;
+                    return;
+                }
+            }
+        }
+
+        // switch to previous player 
+        this.color = this.nextPlayer().color; 
     }
 }
 
@@ -162,13 +218,13 @@ export class Factory {
             }
         }
 
-        pieces.push(new Piece(PieceType.Checker, black.color, board.cellAt(4, 4)))
-
         return pieces;
     }
 }
 
 export class Calculator {
+    public static MOCKING = false;
+
     public static moves(game: Game, player: Player = null): Map<Piece, Move[]> {        
         const pieces = game.piecesOf(player ?? game.player())
             .filter((p) => {
@@ -221,7 +277,7 @@ export class Calculator {
                     // ally piece is blocking the move
                 } else {
                     // enemy piece is there, so check further if it can be captured
-                    moves.push(...this.attackAt(piece, current, leftUpPiece, game));
+                    moves.push(...this.attacksAt(piece, current, leftUpPiece, game));
                 }
             }
 
@@ -233,7 +289,7 @@ export class Calculator {
                     // ally piece is blocking the move
                 } else {
                     // enemy piece is there, so check further if it can be captured
-                    moves.push(...this.attackAt(piece, current, rightUpPiece, game));
+                    moves.push(...this.attacksAt(piece, current, rightUpPiece, game));
 
                 }
             }
@@ -249,7 +305,7 @@ export class Calculator {
                     // ally piece is blocking the move
                 } else {
                     // enemy piece is there, so check further if it can be captured
-                    moves.push(...this.attackAt(piece, current, leftDownPiece, game));
+                    moves.push(...this.attacksAt(piece, current, leftDownPiece, game));
                 }
             }
 
@@ -264,7 +320,7 @@ export class Calculator {
                     // ally piece is blocking the move
                 } else {
                     // enemy piece is there, so check further if it can be captured
-                    moves.push(...this.attackAt(piece, current, rightDownPiece, game));
+                    moves.push(...this.attacksAt(piece, current, rightDownPiece, game));
                 }
             }
         } else {
@@ -277,7 +333,7 @@ export class Calculator {
                     // ally piece is blocking the move
                 } else {
                     // enemy piece is there, so check further if it can be captured
-                    moves.push(...this.attackAt(piece, current, leftDownPiece, game));
+                    moves.push(...this.attacksAt(piece, current, leftDownPiece, game));
                 }
             }
         
@@ -289,7 +345,7 @@ export class Calculator {
                     // ally piece is blocking the move
                 } else {
                     // enemy piece is there, so check further if it can be captured
-                    moves.push(...this.attackAt(piece, current, rightDownPiece, game));
+                    moves.push(...this.attacksAt(piece, current, rightDownPiece, game));
                 }
             }
 
@@ -304,7 +360,7 @@ export class Calculator {
                     // ally piece is blocking the move
                 } else {
                     // enemy piece is there, so check further if it can be captured
-                    moves.push(...this.attackAt(piece, current, leftUpPiece, game));
+                    moves.push(...this.attacksAt(piece, current, leftUpPiece, game));
                 }
             }
 
@@ -319,7 +375,7 @@ export class Calculator {
                     // ally piece is blocking the move
                 } else {
                     // enemy piece is there, so check further if it can be captured
-                    moves.push(...this.attackAt(piece, current, rightUpPiece, game));
+                    moves.push(...this.attacksAt(piece, current, rightUpPiece, game));
                 }
             }
         }
@@ -344,7 +400,7 @@ export class Calculator {
         return result;
     }
 
-    public static attackAt(piece: Piece, from: Cell, target: Piece, game: Game): Move[] {  
+    public static attacksAt(piece: Piece, from: Cell, target: Piece, game: Game): Move[] {  
         const targetCell = target.current;      
         
         const rowDiff = targetCell.row - from.row;
@@ -369,17 +425,47 @@ export class Calculator {
             const nextLandingCell = game.board.cellAt(landingCell.row + rowDiff, landingCell.col + colDiff)
             
             if (nextLandingCell) {
-                this.movesInto(piece, landingCell, nextLandingCell, game)
+                this.movesInto(piece, landingCell, nextLandingCell, game, false)
                     .forEach((m) => {
                         attacks.push(new Move(from, m.to, target, m.promotion));
                     });
+
+                if (this.MOCKING === false) {
+                    this.MOCKING = true;
+
+                    const forced = [];
+                    const mock = new Piece(piece.getType(), piece.color, piece.starting, piece.getMoves());
+                    
+                    attacks.forEach((m) => {
+                        mock.pushMove(m);
+
+                        const mockAttacks = this.movesFor(mock, game)
+                            .filter((mockMove) => {
+                                return mockMove.capture && mockMove.capture !== target;
+                            });
+    
+                        mock.popMove();
+    
+                        mockAttacks.forEach((a) => {
+                            forced.push(a.from);
+                        });
+                    });
+
+                    this.MOCKING = false;
+
+                    if (forced.length) {
+                        return attacks.filter((a) => {
+                            return forced.includes(a.to);
+                        });
+                    }
+                }
             }
         }
         
         return attacks;
     }
 
-    public static movesInto(piece: Piece, from: Cell, into: Cell, game: Game): Move[] {
+    public static movesInto(piece: Piece, from: Cell, into: Cell, game: Game, withAttack: boolean = true): Move[] {
         if (game.pieceAt(into)) {
             // landing on another piece
             return [];
@@ -403,8 +489,8 @@ export class Calculator {
                 target = game.pieceAt(next);
             }
 
-            if (target && target.color !== piece.color) {
-                const attacks = this.attackAt(piece, prev, target, game);
+            if (withAttack && target && target.color !== piece.color) {
+                const attacks = this.attacksAt(piece, prev, target, game);
             
                 attacks.forEach((m) => {
                     moves.push(new Move(piece.current, m.to, m.capture));

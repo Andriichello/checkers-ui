@@ -17,6 +17,7 @@ export const useCheckersStore = defineStore('checkers', {
     player: (state) => state.game.player(), 
     players: (state) => state.game.players, 
     journal: (state) => state.game.journal,
+    undos: (state) => state.game.undos,
     currentMoves: (state) => state.selected && state.moves ? state.moves.get(state.selected) : [],
   },
   actions: {
@@ -24,7 +25,6 @@ export const useCheckersStore = defineStore('checkers', {
       this.game = game ?? new Game();
     },
     select(piece: Piece | null) {
-      console.log('select', piece);
       if (!piece) {
         this.selected = null;
         this.highlights = [];
@@ -69,17 +69,29 @@ export const useCheckersStore = defineStore('checkers', {
       }
     },
     undo() {
-      const color = this.game.color;
-
       this.game.undo();
+
+      this.selected = null;
       this.moves = null;
+      this.highlights = [];
+    
+      const nextMove = this.undos.lastMove();
 
-      if (color === this.game.color) {
-        this.select(this.selected);
-      } else {
-        const last = this.game.lastMove();
+      if (nextMove) {
+        this.select(this.game.pieceAt(nextMove.from));
+      }
+    },
+    forward() {
+      this.game.forward();
 
-        this.select(this.game.pieceAt(last.to));
+      this.selected = null;
+      this.moves = null;
+      this.highlights = [];
+
+      const prevMove = this.undos.lastMove();
+
+      if (prevMove) {
+        this.select(this.game.pieceAt(prevMove.from));
       }
     },
   },

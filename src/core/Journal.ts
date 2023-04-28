@@ -16,6 +16,11 @@ export default class Journal {
         return this;
     }
 
+    public clear(): Journal {
+        this.moves = [];
+        return this;
+    }
+
     public popMove(): Move {
         return this.moves.pop();
     }
@@ -25,9 +30,17 @@ export default class Journal {
         return this;
     }
 
-    public lastMove(): Move | null {
+    public lastMove(offset: number = 1): Move | null {
         const len = this.moves.length;
 
-        return len ? this.moves[len - 1] : null
+        if (!len || offset < 1) {
+            return null;
+        }
+
+        if ((len - offset) < 0) {
+            return null;
+        }
+
+        return this.moves[len - offset];
     }
 }

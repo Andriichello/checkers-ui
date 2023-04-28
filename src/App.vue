@@ -2,6 +2,7 @@
   <div class="content">
     <nav>
       <RouterLink to="/" class="link">Home</RouterLink>
+      <RouterLink to="/checkers" class="link">Checkers</RouterLink>
       <RouterLink to="/about" class="link">About</RouterLink>
     </nav>
 

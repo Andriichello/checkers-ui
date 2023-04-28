@@ -1,7 +1,9 @@
 <template>
     <div class="board">
         <template v-for="cell in board.cells" :key="cell">
-            <Cell :cell="cell" :piece="game.pieceAt(cell)" @cell-click="onCellClick" :light="highlights && highlights.includes(cell)"/>
+            <Cell :cell="cell" :piece="game.pieceAt(cell)"
+                :light="highlights && highlights.includes(cell)"
+                @cell-click="onCellClick" class="cell"/>
         </template>
     </div>
 </template>
@@ -20,6 +22,9 @@ export default defineComponent({
         Cell,
     },
     computed: {
+        flex() {
+            return `0 0 ${ 100 /this.board.cols }%`
+        },
         game() {
             return useCheckersStore().game;
         },
@@ -35,7 +40,6 @@ export default defineComponent({
     },
     methods: {
         onCellClick({ cell, piece }) {
-            console.log('onCellClick', cell.toString())
             const checkers = useCheckersStore();
             
             cell = cell as CoreCell;
@@ -77,6 +81,19 @@ export default defineComponent({
 
 <style scoped>
 .board {
-    @apply grid grid-cols-8 w-full p-2;
+    @apply flex flex-wrap;
+    max-width: 400px;
+}
+
+.cell {
+    flex: v-bind(flex);
+    height: auto;
+}
+
+.cell:before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+    float: left;
 }
 </style>

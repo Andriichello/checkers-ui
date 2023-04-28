@@ -2,10 +2,6 @@
   <div class="home">
     <h1>This is Home view</h1>
     <button @click="onChangeTheme">Change theme</button>
-  
-    <Board />
-
-    <button @click="onUndo">Undo</button>
   </div>
 </template>
 
@@ -13,7 +9,6 @@
 import { useThemeStore } from '@/stores/theme';
 import Board from '@/components/board/Board.vue';
 import { defineComponent } from 'vue';
-import { useCheckersStore } from '@/stores/checkers';
 
 export default defineComponent({
   name: 'HomeView',
@@ -21,11 +16,6 @@ export default defineComponent({
     Board,
   },
   methods: {
-    onUndo() {
-      const store = useCheckersStore();
-
-      store.undo();
-    },
     onChangeTheme() {
       const store = useThemeStore();
 
